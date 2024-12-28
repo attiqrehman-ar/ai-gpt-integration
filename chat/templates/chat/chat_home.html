@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Question Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .form-group textarea {
+            resize: none;
+            height: 80px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 15px;
+            color: #fff;
+            background: #007BFF;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e9ffe9;
+            border: 1px solid #b2ffb2;
+            border-radius: 4px;
+        }
+        .error {
+            margin-top: 20px;
+            padding: 10px;
+            background: #ffe9e9;
+            border: 1px solid #ffb2b2;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ask the AI</h1>
+        <form id="questionForm">
+            <div class="form-group">
+                <label for="question">Your Question:</label>
+                <textarea id="question" name="question" placeholder="Type your question here..."></textarea>
+            </div>
+            <button type="button" class="button" id="submitButton">Ask</button>
+        </form>
+        <div id="response" class="response" style="display: none;"></div>
+        <div id="error" class="error" style="display: none;"></div>
+    </div>
+
+    <script>
+        document.getElementById('submitButton').addEventListener('click', async function () {
+            const questionInput = document.getElementById('question');
+            const responseDiv = document.getElementById('response');
+            const errorDiv = document.getElementById('error');
+
+            // Clear previous messages
+            responseDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+
+            const question = questionInput.value.trim();
+
+            if (!question) {
+                errorDiv.textContent = "Please enter a question.";
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch('/chat/ask/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ question }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (data.answer) {
+                    responseDiv.textContent = `AI's Response: ${data.answer}`;
+                    responseDiv.style.display = 'block';
+                } else if (data.error) {
+                    errorDiv.textContent = `Error: ${data.error}`;
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                errorDiv.textContent = `An error occurred: ${err.message}`;
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

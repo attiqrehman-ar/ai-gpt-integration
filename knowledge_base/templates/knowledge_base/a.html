@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Agent Chat</title>
+</head>
+<body>
+    <h1>Ask a Question to the AI Agent</h1>
+    <form method="GET">
+        <label for="query">Your Question:</label>
+        <input type="text" id="query" name="query" required>
+        <button type="submit">Ask</button>
+    </form>
+    
+    {% if query %}
+        <h2>Response:</h2>
+        <p>{{ response }}</p>
+    {% endif %}
+</body>
+</html>
