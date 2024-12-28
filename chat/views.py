@@ -1,41 +1,34 @@
-from django.http import JsonResponse
-from django.shortcuts import render
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render
 import json
-from .openai_utils import ask_openai
+from transformers import pipeline
 
+# Load the Hugging Face GPT-2 model once during server startup
+generator = pipeline('text-generation', model='gpt2')
 
-def ask_ai_page(request):
-    return render(request, 'chat/chat_home.html')
 @csrf_exempt
 def ask_question(request):
     if request.method == "POST":
         try:
+            # Parse the question from the POST request body
             data = json.loads(request.body)
             question = data.get("question", "")
             if not question:
-                return JsonResponse({"error": "Question not provided"}, status=400)
+                return JsonResponse({"error": "No question provided"}, status=400)
 
-            response = ask_openai(question)
-            return JsonResponse({"answer": response}, status=200)
+            # Generate a response using Hugging Face
+            response = generator(question, max_length=50, num_return_sequences=1)
+            answer = response[0]['generated_text']
+
+            # Return the generated answer
+            return JsonResponse({"answer": answer}, status=200)
+
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON"}, status=400)
+
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
-
-import openai
-
-def ask_openai(question):
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": question},
-            ]
-        )
-        return response['choices'][0]['message']['content']
-    except openai.error.RateLimitError:
-        return "It seems you've exceeded your quota. Please check your usage or consider other options."
-    except openai.error.OpenAIError as e:
-        return f"An error occurred: {str(e)}"
+def chat_home(request):
+    # Render the HTML template
+    return render(request, 'chat/chat_home.html')

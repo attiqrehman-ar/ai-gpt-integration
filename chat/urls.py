@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import ask_ai_page, ask_question
+from .views import ask_question, chat_home
 
 urlpatterns = [
-    path('cha', ask_ai_page, name='ask_ai_page'),  # Route to render the template
-    path('ask/', ask_question, name='ask_question'),  # API route
+    path('', chat_home, name='chat_home'),  # Render the AI chat interface
+    path('ask/', ask_question, name='ask_question'),  # Handle AI API requests
 ]
