@@ -131,4 +131,3 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8000'] 
 CSRF_COOKIE_SECURE = False
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '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')
